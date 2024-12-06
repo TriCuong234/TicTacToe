@@ -1,8 +1,3 @@
-/* FlexibleGridLayout.cs
- * From: Game Dev Guide - Fixing Grid Layouts in Unity With a Flexible Grid Component
- * Created: June 2020, NowWeWake
- */
-
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,8 +8,8 @@ public class FlexibleGridLayout : LayoutGroup
         Uniform,
         Width,
         Height,
-        FixedRow,
-        FixedColumn
+        FixedRows,
+        FixedColumns
     }
 
     [Header("Flexible Grid")]
@@ -34,7 +29,7 @@ public class FlexibleGridLayout : LayoutGroup
 
         if (fitType == FitType.Width || fitType == FitType.Height || fitType == FitType.Uniform)
         {
-            float squareRoot = Mathf.Sqrt(transform.childCount);
+            float squareRoot = Mathf.Sqrt(rectChildren.Count);
             rows = columns = Mathf.CeilToInt(squareRoot);
             switch (fitType)
             {
@@ -52,74 +47,62 @@ public class FlexibleGridLayout : LayoutGroup
             }
         }
 
-        if (fitType == FitType.Width || fitType == FitType.FixedColumn)
+        if (fitType == FitType.Width || fitType == FitType.FixedColumns)
         {
-            rows = Mathf.CeilToInt(transform.childCount / (float)columns);
+            rows = Mathf.CeilToInt(rectChildren.Count / (float)columns);
         }
-        if (fitType == FitType.Height || fitType == FitType.FixedRow)
+        if (fitType == FitType.Height || fitType == FitType.FixedRows)
         {
-            columns = Mathf.CeilToInt(transform.childCount / (float)rows);
+            columns = Mathf.CeilToInt(rectChildren.Count / (float)rows);
         }
-
 
         float parentWidth = rectTransform.rect.width;
         float parentHeight = rectTransform.rect.height;
 
-        float cellWidth = parentWidth / (float)columns - ((spacing.x / (float)columns) * (columns - 1))
-            - (padding.left / (float)columns) - (padding.right / (float)columns);
-        float cellHeight = parentHeight / (float)rows - ((spacing.y / (float)rows) * (rows - 1))
-            - (padding.top / (float)rows) - (padding.bottom / (float)rows); ;
+        float totalSpacingX = spacing.x * (columns - 1);
+        float totalSpacingY = spacing.y * (rows - 1);
+
+        float cellWidth = (parentWidth - padding.left - padding.right - totalSpacingX) / columns;
+        float cellHeight = (parentHeight - padding.top - padding.bottom - totalSpacingY) / rows;
 
         cellSize.x = fitX ? cellWidth : cellSize.x;
         cellSize.y = fitY ? cellHeight : cellSize.y;
-
-
-
-
     }
 
     public override void CalculateLayoutInputVertical()
     {
-        //throw new System.NotImplementedException();
+        // Không cần triển khai chi tiết ở đây
     }
 
     public override void SetLayoutHorizontal()
     {
-        int columnCount = 0;
-
         for (int i = 0; i < rectChildren.Count; i++)
         {
-
-            columnCount = i % columns;
-
             var item = rectChildren[i];
+            float rowSpan = item.GetComponent<LayoutElement>()?.flexibleHeight ?? 1; // Số lượng dòng mà phần tử chiếm
+            float colSpan = item.GetComponent<LayoutElement>()?.flexibleWidth ?? 1;  // Số lượng cột mà phần tử chiếm
 
-            var xPos = (cellSize.x * columnCount) + (spacing.x * columnCount) + padding.left;
+            int columnCount = i % columns;
 
-
-            SetChildAlongAxis(item, 0, xPos, cellSize.x);
-
-
+            float xPos = (cellSize.x * columnCount) + (spacing.x * columnCount) + padding.left;
+            float itemWidth = cellSize.x * colSpan + spacing.x * (colSpan - 1);
+            SetChildAlongAxis(item, 0, xPos, itemWidth);
         }
     }
 
     public override void SetLayoutVertical()
     {
-
-        int rowCount = 0;
         for (int i = 0; i < rectChildren.Count; i++)
         {
-            rowCount = i / columns;
-
-
             var item = rectChildren[i];
+            float rowSpan = item.GetComponent<LayoutElement>()?.flexibleHeight ?? 1; // Số lượng dòng mà phần tử chiếm
+            float colSpan = item.GetComponent<LayoutElement>()?.flexibleWidth ?? 1;  // Số lượng cột mà phần tử chiếm
 
+            int rowCount = i / columns;
 
-            var yPos = (cellSize.y * rowCount) + (spacing.y * rowCount) + padding.top;
-
-
-            SetChildAlongAxis(item, 1, yPos, cellSize.y);
-
+            float yPos = (cellSize.y * rowCount) + (spacing.y * rowCount) + padding.top;
+            float itemHeight = cellSize.y * rowSpan + spacing.y * (rowSpan - 1);
+            SetChildAlongAxis(item, 1, yPos, itemHeight);
         }
     }
 }
