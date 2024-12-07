@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,7 +9,9 @@ public class ButtonClickHandler : MonoBehaviour
     private Button button;
     private Sprite xSprite;
     private Sprite oSprite;
+    private int i,j;
 
+    public GameObject gameOverLayout;
     void Start()
     {
         xSprite = Resources.Load<Sprite>("Sprites/XassetWhite");
@@ -17,6 +20,17 @@ public class ButtonClickHandler : MonoBehaviour
         if (button != null)
         {
             button.onClick.AddListener(OnButtonClick);
+        }
+        int name = int.Parse(this.gameObject.name);
+        if (name < 4)
+        {
+            i = 0;
+            j = name % 10 - 1;
+        }
+        else
+        {
+            i = name / 10;
+            j = name % 10 - 1;
         }
     }
 
@@ -28,7 +42,7 @@ public class ButtonClickHandler : MonoBehaviour
         if (myObject != null)
         {
             GamePlay managementScript = myObject.GetComponent<GamePlay>();
-            managementScript.nameToPoint(int.Parse(this.name));
+            managementScript.checkBoard(this.i, this.j);
             if(managementScript.playerNow()){
                 Image imgSrc = this.GetComponent<Image>();
                 imgSrc.type = Image.Type.Simple;
@@ -38,9 +52,30 @@ public class ButtonClickHandler : MonoBehaviour
                 imgSrc.type = Image.Type.Simple;
                 imgSrc.sprite = oSprite;
             }
-
-
+            managementScript.checkWin(i,j);
+            switch(managementScript.checkWin(i,j)){
+                case 0:{
+                    break;
+                }
+                case 1:{
+                    gameOverLayout.GetComponent<GameOverLayout>().getPlayerWinName("Player1 Win!");
+                    break;
+                }
+                case -1:{
+                    gameOverLayout.GetComponent<GameOverLayout>().getPlayerWinName("Player2 Win!");
+                    break;
+                }
+                case -2:{
+                    gameOverLayout.GetComponent<GameOverLayout>().getPlayerWinName("Draw!");
+                    break;
+                }
+            }
             managementScript.playerChange();
         }
     }
+
+    public void resetActive(){
+        button.interactable = true;
+    }
+
 }

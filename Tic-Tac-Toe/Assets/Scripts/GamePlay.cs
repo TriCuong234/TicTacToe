@@ -30,21 +30,11 @@ public class GamePlay : MonoBehaviour
         return this.player;
     }
 
-    public void nameToPoint(int name)
+    public void checkBoard(int i, int j)
     {
-        int i = 0;
-        int j = 0;
-        if (name < 4)
-        {
-            i = 0;
-            j = name % 10 - 1;
-        }
-        else
-        {
-            i = name / 10;
-            j = name % 10 - 1;
-        }
+
         this.board[i, j] = this.player ? 1 : -1;
+
     }
 
 
@@ -55,5 +45,63 @@ public class GamePlay : MonoBehaviour
             for (int j = 0; j < board.GetLength(1); j++)
                 print(i + "," + j + ":" + board[i, j]);
         }
+    }
+
+    public int countChess()
+    {
+        int count = 0;
+        for (int i = 0; i < board.GetLength(0); i++)
+        {
+            for (int j = 0; j < board.GetLength(1); j++)
+            {
+                if (board[i, j] != 0)
+                {
+                    count++;
+                };
+            }
+        }
+        return count;
+    }
+    private int checkMetCondition(int i, int j)
+    {
+        if ((board[i, 0] == board[i, 1]) && (board[i, 1] == board[i, 2]))
+        {
+            return 1;
+        }
+
+        if ((board[0, j] == board[1, j]) && (board[1, j] == board[2, j]))
+        {
+            return 1;
+        }
+
+        if ((board[0, 0] == board[1, 1]) && (board[1, 1] == board[2, 2]))
+        {
+            return 1;
+        }
+        if ((board[0, 2] == board[1, 1]) && (board[1, 1] == board[2, 0])) { return 1; }
+        if (countChess() == 9)
+        {
+            return -1;
+        }
+        return 0;
+    }
+    public int checkWin(int i, int j)
+    {
+
+        if (countChess() > 4)
+        {
+            if(checkMetCondition(i, j) == 1){
+                return this.player ? 1 : -1;
+            }
+            if(checkMetCondition(i, j) == -1){
+                return -2;
+            }
+        }
+        return 0;
+    }
+
+    public void reset()
+    {
+        for (int i = 0; i < board.GetLength(0); i++) { for (int j = 0; j < board.GetLength(1); j++) { board[i, j] = 0; } }
     }
 }
