@@ -9,11 +9,18 @@ public class ButtonClickHandler : MonoBehaviour
     private Button button;
     private Sprite xSprite;
     private Sprite oSprite;
-    private int i,j;
+    private int i, j;
+    private Image imgSrc;
+    private Sprite imgSrcOriginSprite;
+    private GameObject player;
 
     public GameObject gameOverLayout;
     void Start()
     {
+        imgSrc = this.GetComponent<Image>();
+        imgSrcOriginSprite = imgSrc.sprite;
+        ButtonManager.Instance.RegisterButton(this);
+        player = GameObject.Find("Player");
         xSprite = Resources.Load<Sprite>("Sprites/XassetWhite");
         oSprite = Resources.Load<Sprite>("Sprites/OassetWhite");
         button = GetComponent<Button>();
@@ -43,39 +50,48 @@ public class ButtonClickHandler : MonoBehaviour
         {
             GamePlay managementScript = myObject.GetComponent<GamePlay>();
             managementScript.checkBoard(this.i, this.j);
-            if(managementScript.playerNow()){
-                Image imgSrc = this.GetComponent<Image>();
+            if (managementScript.playerNow())
+            {
                 imgSrc.type = Image.Type.Simple;
                 imgSrc.sprite = xSprite;
-            } else {
-                Image imgSrc = this.GetComponent<Image>();
+            }
+            else
+            {
                 imgSrc.type = Image.Type.Simple;
                 imgSrc.sprite = oSprite;
             }
-            managementScript.checkWin(i,j);
-            switch(managementScript.checkWin(i,j)){
-                case 0:{
-                    break;
-                }
-                case 1:{
-                    gameOverLayout.GetComponent<GameOverLayout>().getPlayerWinName("Player1 Win!");
-                    break;
-                }
-                case -1:{
-                    gameOverLayout.GetComponent<GameOverLayout>().getPlayerWinName("Player2 Win!");
-                    break;
-                }
-                case -2:{
-                    gameOverLayout.GetComponent<GameOverLayout>().getPlayerWinName("Draw!");
-                    break;
-                }
+            switch (managementScript.checkWin(i, j))
+            {
+                case 0:
+                    {
+                        break;
+                    }
+                case 1:
+                    {
+                        gameOverLayout.GetComponent<GameOverLayout>().getPlayerWinName("Player1 Win!");
+                        break;
+                    }
+                case -1:
+                    {
+                        gameOverLayout.GetComponent<GameOverLayout>().getPlayerWinName("Player2 Win!");
+                        break;
+                    }
+                case -2:
+                    {
+                        gameOverLayout.GetComponent<GameOverLayout>().getPlayerWinName("Draw!");
+                        break;
+                    }
             }
             managementScript.playerChange();
         }
     }
 
-    public void resetActive(){
+    public void resetActive()
+    {
         button.interactable = true;
+        
+        imgSrc.type = Image.Type.Sliced;
+        imgSrc.sprite = imgSrcOriginSprite;
     }
 
 }

@@ -100,7 +100,7 @@ public class GamePlay : MonoBehaviour
         return 0;
     }
 
-    public void reset()
+    public void ResetBoard()
     {
         for (int i = 0; i < board.GetLength(0); i++) { for (int j = 0; j < board.GetLength(1); j++) { board[i, j] = 0; } }
     }
