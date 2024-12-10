@@ -43,6 +43,8 @@ public class ButtonClickHandler : MonoBehaviour
 
     void OnButtonClick()
     {
+        AudioManager.Instance.PlaySFX();
+
         button.interactable = false;
         // Thêm các tác vụ cần thiết tại đây
         GameObject myObject = GameObject.Find("ManagementPlay");
@@ -88,10 +90,17 @@ public class ButtonClickHandler : MonoBehaviour
 
     public void resetActive()
     {
-        button.interactable = true;
-        
-        imgSrc.type = Image.Type.Sliced;
-        imgSrc.sprite = imgSrcOriginSprite;
+        if (button != null)
+        {
+            button.interactable = true;
+
+            imgSrc.type = Image.Type.Sliced;
+            imgSrc.sprite = imgSrcOriginSprite;
+        }
+        else
+        {
+
+        }
     }
 
 }
