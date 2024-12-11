@@ -35,4 +35,12 @@ public class ButtonManager : MonoBehaviour
             button.resetActive();
         }
     }
+
+    public void StartTimerAll()
+    {
+        foreach (ButtonClickHandler button in buttons)
+        {
+            button.startTimer();
+        }
+    }
 }

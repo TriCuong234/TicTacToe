@@ -30,7 +30,6 @@ public class GameOverLayout : MonoBehaviour
     }
 
     public void getPlayerWinName(String player){
-        
         textWin.GetComponent<Text>().text = player;
         
         this.gameObject.SetActive(true);
@@ -38,6 +37,8 @@ public class GameOverLayout : MonoBehaviour
 
     void OnButtonContinueClick(){
         //rs
+        ButtonClickHandler button = GameObject.Find("01").GetComponent<ButtonClickHandler>();
+        button.startTimer();
         GameObject player = GameObject.Find("Player");
         player.GetComponent<Player>().UpdatePointPlayer(GetPlayerWin());
         ButtonManager.Instance.ChangeAllButtons();

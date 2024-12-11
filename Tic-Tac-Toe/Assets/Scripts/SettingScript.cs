@@ -50,11 +50,15 @@ public class AudioSettings : MonoBehaviour
 
     void OnContinueClick()
     {
+        ButtonClickHandler button = GameObject.Find("01").GetComponent<ButtonClickHandler>();
+        button.continueTimer();
         this.gameObject.SetActive(false);
     }
 
     void OnSettingClick()
     {
+        ButtonClickHandler button = GameObject.Find("01").GetComponent<ButtonClickHandler>();
+        button.pauseTimer();
         this.gameObject.SetActive(true);
     }
 

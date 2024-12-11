@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -13,10 +14,14 @@ public class ButtonClickHandler : MonoBehaviour
     private Image imgSrc;
     private Sprite imgSrcOriginSprite;
     private GameObject player;
-
+    [SerializeField]
+    private GameObject timer;
+    [SerializeField]
+    private GameObject timerWaiter;
     public GameObject gameOverLayout;
     void Start()
     {
+        CountdownTimer.Instance.TwoCaroutine(3, timerWaiter, 60, timer);
         imgSrc = this.GetComponent<Image>();
         imgSrcOriginSprite = imgSrc.sprite;
         ButtonManager.Instance.RegisterButton(this);
@@ -70,22 +75,31 @@ public class ButtonClickHandler : MonoBehaviour
                     }
                 case 1:
                     {
+                        CountdownTimer.Instance.StopAllCoroutines();
                         gameOverLayout.GetComponent<GameOverLayout>().getPlayerWinName("Player1 Win!");
+                        return;
                         break;
                     }
                 case -1:
                     {
+                        CountdownTimer.Instance.StopAllCoroutines();
                         gameOverLayout.GetComponent<GameOverLayout>().getPlayerWinName("Player2 Win!");
+                        return;
                         break;
                     }
                 case -2:
                     {
+                        CountdownTimer.Instance.StopAllCoroutines();
                         gameOverLayout.GetComponent<GameOverLayout>().getPlayerWinName("Draw!");
+                        return;
                         break;
                     }
             }
             managementScript.playerChange();
         }
+        CountdownTimer.Instance.StopAllCoroutines();
+        CountdownTimer.Instance.StartCountdownToEnd(60, timer);
+
     }
 
     public void resetActive()
@@ -103,4 +117,19 @@ public class ButtonClickHandler : MonoBehaviour
         }
     }
 
+    public void startTimer()
+    {
+        CountdownTimer.Instance.TwoCaroutine(3, timerWaiter, 60, timer);
+    }
+
+    public void continueTimer()
+    {
+        CountdownTimer.Instance.StartCountdownToEnd(CountdownTimer.Instance.countdownTime, timer);
+    }
+
+    public void pauseTimer()
+    {
+        CountdownTimer.Instance.PauseCountdown();
+        CountdownTimer.Instance.StopAllCoroutines();
+    }
 }

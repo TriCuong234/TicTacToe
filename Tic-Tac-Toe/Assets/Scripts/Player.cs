@@ -13,9 +13,14 @@ public class Player : MonoBehaviour
     [SerializeField]
     private GameObject player2Output;
 
+    public GameObject timer;
+
+    public GameObject timerWaiter;
+
     void Start()
     {
-
+        timerWaiter.SetActive(true);
+        
     }
 
     // Update is called once per frame

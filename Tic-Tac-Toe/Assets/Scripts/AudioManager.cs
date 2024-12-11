@@ -43,6 +43,7 @@ public class AudioManager : MonoBehaviour
 
     void Start()
     {
+
         bgmSource.volume = PlayerPrefs.GetFloat("BGMVolume", 0.5f);
         sfxSource.volume = PlayerPrefs.GetFloat("SFXVolume", 0.5f);
         if (bgmSource != null && bgmSource.clip != null)
@@ -51,6 +52,8 @@ public class AudioManager : MonoBehaviour
         }
 
     }
+
+
     int randomSFX()
     {
         return Random.Range(1, 4);
