@@ -1,28 +1,38 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GamePlay : MonoBehaviour
 {
-
-    private int[,] board = new int[3, 3];
+    public int[,] board = new int[3, 3];
     private bool player;
+    private AI ai;
+    public GameObject gameOverLayout;
+    public bool isPvP; // Biến xác định chế độ chơi
 
     void Start()
     {
         this.player = true;
-        for (int i = 0; i < board.GetLength(0); i++) { for (int j = 0; j < board.GetLength(1); j++) { board[i, j] = 0; } }
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
+        this.isPvP = true;
+        for (int i = 0; i < board.GetLength(0); i++) 
+        {
+            for (int j = 0; j < board.GetLength(1); j++) 
+            { 
+                board[i, j] = 0; 
+            }
+        }
+        ai = new AI(this); // Khởi tạo AI
     }
 
     public void playerChange()
     {
         this.player = !this.player;
+        if (!this.player && !isPvP)
+        {
+            AITurn();
+
+        }
     }
 
     public bool playerNow()
@@ -32,18 +42,25 @@ public class GamePlay : MonoBehaviour
 
     public void checkBoard(int i, int j)
     {
-
         this.board[i, j] = this.player ? 1 : -1;
-
     }
 
-
-    public void showBoard()
+    public void UpdateBoardDisplay(int i, int j, bool isAI)
     {
-        for (int i = 0; i < board.GetLength(0); i++)
+        string buttonName = $"{i}{j + 1}";
+        GameObject buttonObject = GameObject.Find(buttonName);
+        if (buttonObject != null)
         {
-            for (int j = 0; j < board.GetLength(1); j++)
-                print(i + "," + j + ":" + board[i, j]);
+            Image imgSrc = buttonObject.GetComponent<Image>();
+            if (isAI)
+            {
+                imgSrc.sprite = Resources.Load<Sprite>("Sprites/OassetWhite");
+            }
+            else
+            {
+                imgSrc.sprite = Resources.Load<Sprite>("Sprites/XassetWhite");
+            }
+            buttonObject.GetComponent<Button>().interactable = false;
         }
     }
 
@@ -57,51 +74,118 @@ public class GamePlay : MonoBehaviour
                 if (board[i, j] != 0)
                 {
                     count++;
-                };
+                }
             }
         }
         return count;
     }
-    private int checkMetCondition(int i, int j)
+
+    public bool CheckWinner(int[,] board, int player)
     {
-        if ((board[i, 0] == board[i, 1]) && (board[i, 1] == board[i, 2]))
+        for (int i = 0; i < 3; i++)
         {
-            return 1;
+            if ((board[i, 0] == player && board[i, 1] == player && board[i, 2] == player) ||
+                (board[0, i] == player && board[1, i] == player && board[2, i] == player))
+                return true;
         }
-
-        if ((board[0, j] == board[1, j]) && (board[1, j] == board[2, j]))
-        {
-            return 1;
-        }
-
-        if ((board[0, 0] == board[1, 1]) && (board[1, 1] == board[2, 2]))
-        {
-            return 1;
-        }
-        if ((board[0, 2] == board[1, 1]) && (board[1, 1] == board[2, 0])) { return 1; }
-        if (countChess() == 9)
-        {
-            return -1;
-        }
-        return 0;
+        if ((board[0, 0] == player && board[1, 1] == player && board[2, 2] == player) ||
+            (board[0, 2] == player && board[1, 1] == player && board[2, 0] == player))
+            return true;
+        return false;
     }
+
+    public bool IsDraw(int[,] board)
+    {
+        foreach (var spot in board)
+        {
+            if (spot == 0) return false;
+        }
+        return true;
+    }
+
     public int checkWin(int i, int j)
     {
-
         if (countChess() > 4)
         {
-            if(checkMetCondition(i, j) == 1){
-                return this.player ? 1 : -1;
-            }
-            if(checkMetCondition(i, j) == -1){
-                return -2;
-            }
+            if (CheckWinner(board, board[i, j])) return board[i, j] == 1 ? 1 : -1;
+            if (IsDraw(board)) return -2;
         }
         return 0;
     }
 
     public void ResetBoard()
     {
-        for (int i = 0; i < board.GetLength(0); i++) { for (int j = 0; j < board.GetLength(1); j++) { board[i, j] = 0; } }
+        for (int i = 0; i < board.GetLength(0); i++) 
+        {
+            for (int j = 0; j < board.GetLength(1); j++) 
+            { 
+                board[i, j] = 0; 
+            }
+        }
+    }
+
+    public void SetButtonsInteractable(bool state)
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            for (int j = 0; j < 3; j++)
+            {
+                string buttonName = $"{i}{j + 1}";
+                GameObject buttonObject = GameObject.Find(buttonName);
+                if (buttonObject != null)
+                {
+                    // Chỉ kích hoạt lại các nút trống
+                    if (board[i, j] == 0)
+                    {
+                        buttonObject.GetComponent<Button>().interactable = state;
+                    }
+                }
+            }
+        }
+    }
+
+    private void AITurn()
+    {
+        SetButtonsInteractable(false); // Vô hiệu hóa các nút
+                
+        Vector2Int move = ai.BestMove(board);
+        board[move.x, move.y] = -1; // AI đánh dấu
+        UpdateBoardDisplay(move.x, move.y, true); // Cập nhật hiển thị cho AI
+
+        // Kiểm tra điều kiện thắng sau khi AI thực hiện nước đi
+        switch (checkWin(move.x, move.y))
+        {
+            case 1:
+                CountdownTimer.Instance.StopAllCoroutines();
+                gameOverLayout.GetComponent<GameOverLayout>().getPlayerWinName("Player1 Win!");
+                break;
+            case -1:
+                CountdownTimer.Instance.StopAllCoroutines();
+                gameOverLayout.GetComponent<GameOverLayout>().getPlayerWinName("Player2 Win!");
+                SetButtonsInteractable(true);
+                break;
+            case -2:
+                CountdownTimer.Instance.StopAllCoroutines();
+                gameOverLayout.GetComponent<GameOverLayout>().getPlayerWinName("Draw!");
+                return;
+        }
+
+        SetButtonsInteractable(true); // Kích hoạt lại các nút trống
+        playerChange(); // Đổi lượt về người chơi
+    }
+
+
+    public void showBoard(){
+        for (int i = 0; i < board.GetLength(0); i++) 
+        {
+            for (int j = 0; j < board.GetLength(1); j++) 
+            { 
+                print(board[i,j]); 
+            }
+        }
+    }
+
+    public void showPlayerWinTimeEnd(){
+        gameOverLayout.GetComponent<GameOverLayout>().getPlayerWinName(player ? "Player2": "Player1"+" Win!");
     }
 }

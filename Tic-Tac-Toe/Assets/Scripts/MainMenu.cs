@@ -10,6 +10,7 @@ public class MainMenu : MonoBehaviour
     public Button pvpBtn;
     public Button pveBtn;
     public Button exitBtn;
+
     void Start()
     {
         pvpBtn.onClick.AddListener(OnButtonClickPvP);
@@ -17,16 +18,27 @@ public class MainMenu : MonoBehaviour
         exitBtn.onClick.AddListener(OnButtonClickExit);
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-
-
-    }
-
     void OnButtonClickPvP()
     {
         SceneManager.LoadScene("TicTacToe");
+    }
+
+    private IEnumerator LoadSceneCoroutine()
+    {
+        while (!SceneManager.GetActiveScene().name.Equals("TicTacToe"))
+        {
+            yield return null;
+        }
+
+        ButtonClickHandler button = FindObjectOfType<ButtonClickHandler>();
+        if (button != null)
+        {
+            button.start2Coroutine();
+        }
+        else
+        {
+            Debug.LogError("Không tìm thấy nút ButtonClickHandler.");
+        }
     }
 
     void OnButtonClickPvE()
@@ -37,7 +49,6 @@ public class MainMenu : MonoBehaviour
     void OnButtonClickExit()
     {
         Application.Quit();
-
         Debug.Log("Game is exiting.");
     }
 }

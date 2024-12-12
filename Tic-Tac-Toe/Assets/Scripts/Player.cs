@@ -19,7 +19,7 @@ public class Player : MonoBehaviour
 
     void Start()
     {
-        timerWaiter.SetActive(true);
+        timerWaiter.SetActive(false);
         
     }
 

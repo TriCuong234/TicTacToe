@@ -48,6 +48,8 @@ public class GameOverLayout : MonoBehaviour
     }
     void OnButtonExitClick(){
         //chuyen ve scene MainMenu
+        ButtonClickHandler button = GameObject.Find("01").GetComponent<ButtonClickHandler>();
+        button.pauseTimer();
         SceneManager.LoadScene("MainMenu");
     }
 

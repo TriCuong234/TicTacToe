@@ -36,11 +36,15 @@ public class ButtonManager : MonoBehaviour
         }
     }
 
-    public void StartTimerAll()
-    {
-        foreach (ButtonClickHandler button in buttons)
-        {
-            button.startTimer();
-        }
+    // public void StartTimerAll()
+    // {
+    //     foreach (ButtonClickHandler button in buttons)
+    //     {
+    //         button.startTimer();
+    //     }
+    // }
+
+    public ButtonClickHandler getButton(){
+        return buttons[0];
     }
 }
